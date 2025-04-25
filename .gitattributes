@@ -1,0 +1,9 @@
+/mvnw text eol=lf
+*.cmd text eol=crlf
+
+# Normalize text files to LF in the repository, convert to CRLF on Windows
+* text=auto eol=lf
+
+# Ensure specific files (e.g., scripts) keep their line endings
+*.sh text eol=lf
+*.cmd text eol=crlf
