@@ -1,0 +1,49 @@
+name: CI/CD for Guess Game
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AZURE_WEBAPP_NAME: GuessGame
+  AZURE_RESOURCE_GROUP: GuessingGame-RG
+  AZURE_SUBSCRIPTION_ID: 71ec749a-3a82-425d-bb87-038407018e85
+  JAVA_VERSION: '17'
+  MAVEN_VERSION: '3.9.9'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Set up Maven
+        uses: stefanzweifel/gitignore-parser@v1
+        with:
+          maven-version: ${{ env.MAVEN_VERSION }}
+
+      - name: Build and test
+        run: mvn clean package
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: target/guess-game-0.0.1-SNAPSHOT.jar
